@@ -24,20 +24,21 @@ function compileData(sample) {
       dashBoard.append("h6").text(`${key.toUpperCase()} : ${value}`);
     });
 
-    // create gauge info
-    // (resultSamples.wfreq
-
+    // BONUS: Create Gauge
+    function createGauge(wfreq) {
+      var value = resultSamples.wfreq;
+    }
   });
 }
 
 // Create Charts
-function compileCharts(sample) { 
+function compileCharts(sample) {
 
   // Get Data
   d3.json("data/samples.json").then((data) => {
     var dataSamples = data.samples;
 
-    var objectSamples = dataSamples.filter(objectSamples => objectSamples.id == sample);
+    var objectSamples = dataSamples.filter(objectSamples => objectSamples.id === sample);
 
     var resultSamples = objectSamples[0];
 
@@ -47,7 +48,7 @@ function compileCharts(sample) {
     const otu_labels = resultSamples.otu_labels;
 
     console.log("compileCharts output");
- 
+
     // Bar Chart
     let barData = [{
       text: otu_labels,
@@ -56,9 +57,9 @@ function compileCharts(sample) {
       type: "bar",
       orientation: "h"
     }]
-    
+
     let barLayout = {
-      title: "Bar Chart",
+      title: "Top 10 Bacteria",
       hovermode: "closest"
     }
 
@@ -67,24 +68,62 @@ function compileCharts(sample) {
 
     // Bubble Chart
     let bubbleData = [{
-    text: otu_labels,
-    x: otu_ids,
-    y: sample_values,
-    mode: "markers",
-    marker: {
-      size: sample_values,
-      color: otu_ids
+      text: otu_labels,
+      x: otu_ids,
+      y: sample_values,
+      mode: "markers",
+      marker: {
+        size: sample_values,
+        color: otu_ids,
+        colorscale: "Earth",
+        type: "heatmap"
       }
     }]
 
     let bubbleLayout = {
-      title: "Bubble Chart",
+      title: "Bacteria per Sample",
       hovermode: "closest"
     }
 
     Plotly.newPlot("bubble", bubbleData, bubbleLayout)
-  
-  })
+
+    // BONUS: Gauge
+    var wfreq = resultSamples.wfreq;
+
+    let gaugeData = [{
+      
+      domain: { x: [0, 1], y: [0, 1] },
+      title: "<span style='font-weight:bold'>Belly Button Washing Frequency</span><br>Scrubs per Week",
+      type: "indicator",
+      mode: "gauge",
+      gauge: {
+        axis: {
+          range: [null, 9],
+          ticks: "",
+          visible: false
+        },
+        steps: [
+          { range: [0, 1], color: "#ffffe5" },
+          { range: [1, 2], color: "#f7fcd9" },
+          { range: [2, 3], color: "#d9f0a3" },
+          { range: [3, 4], color: "#addd8e" },
+          { range: [4, 5], color: "#78c679" },
+          { range: [5, 6], color: "#41ab5d" },
+          { range: [6, 7], color: "#238443" },
+          { range: [7, 8], color: "#006837" },
+          { range: [8, 9], color: "#004529" },
+        ]
+      },
+    }];
+
+    let gaugeLayout = {
+      width: 600,
+      height: 450,
+      margin: { t: 0, b: 0 },
+    };
+
+    Plotly.newPlot("gauge", gaugeData, gaugeLayout);
+})
 
 }
 // Event Listener
@@ -119,16 +158,9 @@ function init() {
 
     var firstSample = sampleNames[0];
 
-
-
-
     compileData(firstSample)
 
     compileCharts(firstSample)
-
-
-
-
 
   });
 
